@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FFF8F5">
+<title>מעקב הריון – מיטל</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#FFF8F5;--card:#FFF;--pri:#E8836B;--priL:#FCEAE5;--priD:#C96B55;
+  --acc:#7EB5A6;--accL:#E5F2EE;--txt:#3D2C29;--txtS:#8B7874;--txtM:#BEB0AC;
+  --brd:#F0E6E2;--sh:0 2px 16px rgba(61,44,41,.06);--shL:0 8px 32px rgba(61,44,41,.1);
+  --t1:#E8836B;--t1b:#FFF0EC;--t2:#D4A843;--t2b:#FFF8E8;--t3:#7EB5A6;--t3b:#E5F2EE;
+}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:'Rubik',sans-serif;background:var(--bg);color:var(--txt);
+  max-width:500px;margin:0 auto;padding-bottom:80px}
+button,input,select,textarea{font-family:inherit;border:none;outline:none;background:none}
+button{cursor:pointer}
+a{text-decoration:none}
+
+.hdr{padding:20px 20px 12px;position:sticky;top:0;z-index:50;background:var(--bg)}
+.hdr h1{font-size:22px;font-weight:800}
+.hdr-sub{font-size:13px;color:var(--txtS);margin-top:2px}
+
+.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;
+  background:var(--card);border-top:1px solid var(--brd);display:flex;z-index:60;
+  padding:6px 0 max(8px, env(safe-area-inset-bottom))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0;gap:2px;background:none;border:none}
+.tab-ico{font-size:20px}
+.tab-lbl{font-size:10px;font-weight:500;color:var(--txtM)}
+.tab.on .tab-lbl{font-weight:700;color:var(--pri)}
+
+.fab{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);width:56px;height:56px;
+  border-radius:50%;background:var(--pri);color:#fff;font-size:30px;font-weight:300;
+  box-shadow:0 4px 20px rgba(232,131,107,.5);z-index:55;display:flex;align-items:center;
+  justify-content:center;line-height:1}
+.fab:active{transform:translateX(-50%) scale(.9)}
+
+.hero{border-radius:24px;padding:28px 24px;color:#fff;margin:0 16px 16px;position:relative;
+  overflow:hidden;background:linear-gradient(135deg,var(--pri),var(--priD));box-shadow:var(--shL)}
+.hero-c1{position:absolute;top:-30px;left:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero-c2{position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.06)}
+.hero-in{position:relative;z-index:1}
+.hero-method{font-size:13px;opacity:.85;margin-bottom:4px}
+.hero-switch{margin-right:8px;text-decoration:underline;cursor:pointer;opacity:.7;font-size:11px}
+.hero-week{font-size:42px;font-weight:800;letter-spacing:-1px}
+.hero-due{font-size:13px;opacity:.8;margin-top:8px}
+.pbar{margin-top:14px;background:rgba(255,255,255,.2);border-radius:10px;height:6px}
+.pbar-f{background:#fff;border-radius:10px;height:6px;transition:width .5s}
+.pbar-l{display:flex;justify-content:space-between;font-size:10px;opacity:.6;margin-top:4px}
+
+.nxt{margin:0 16px 16px;background:var(--accL);border:1.5px solid var(--acc);border-radius:16px;
+  padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.nxt-dot{width:40px;height:40px;border-radius:12px;background:var(--acc);display:flex;
+  align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.nxt-lbl{font-size:11px;color:var(--acc);font-weight:600}
+.nxt-title{font-size:15px;font-weight:700}
+.nxt-meta{font-size:12px;color:var(--txtS)}
+
+.crd{background:var(--card);border-radius:16px;box-shadow:var(--sh);padding:16px 18px;margin:0 16px 16px}
+.crd h3{font-size:13px;font-weight:700;margin-bottom:10px}
+
+.qk{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 16px 16px}
+.qk-btn{background:var(--card);border-radius:16px;padding:20px 16px;box-shadow:var(--sh);text-align:center}
+.qk-ico{font-size:28px;margin-bottom:6px}
+.qk-lbl{font-size:13px;font-weight:600;color:var(--txt)}
+
+.ms-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--brd);cursor:pointer}
+.ms-row:last-child{border-bottom:none}
+.ms-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ms-name{font-size:14px;font-weight:600}
+.ms-desc{font-size:11px;color:var(--txtS)}
+.ms-add{font-size:20px;color:var(--pri)}
+
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin:0 16px 12px}
+.cal-nav-title{font-size:18px;font-weight:700}
+.cal-nav-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--brd) !important;
+  background:var(--card) !important;font-size:18px;color:var(--txt);display:flex;
+  align-items:center;justify-content:center}
+.cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin:0 16px 4px}
+.cal-hdr span{text-align:center;font-size:11px;font-weight:600;color:var(--txtM);padding:4px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:var(--card);
+  border-radius:20px;padding:6px;box-shadow:var(--shL);margin:0 16px}
+.cc{text-align:center;padding:4px 1px 5px;border-radius:10px;min-height:58px;position:relative;
+  border:1.5px solid transparent;transition:all .15s}
+.cc-today{background:var(--priL);border-color:var(--pri) !important}
+.cc-apt{background:linear-gradient(135deg,var(--accL),#D4F0E7);border-color:var(--acc) !important;cursor:pointer}
+.cc-day{font-size:13px;font-weight:500;line-height:1.2}
+.cc-today .cc-day{font-weight:800;color:var(--pri)}
+.cc-apt .cc-day{font-weight:700;color:var(--acc)}
+.cc-wd{font-size:8.5px;font-weight:700;line-height:1.1;margin-top:1px;color:var(--txtM);display:inline-block}
+.cc-wd-hi{border-radius:4px;padding:1px 3px}
+.cc-al{font-size:7.5px;font-weight:700;color:var(--acc);margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 1px;line-height:1.1}
+
+.tri-leg{display:flex;justify-content:center;gap:16px;margin:10px 16px 10px}
+.tri-item{display:flex;align-items:center;gap:4px}
+.tri-sw{width:10px;height:10px;border-radius:3px}
+.tri-nm{font-size:9.5px;font-weight:600}
+
+.ca{margin:0 16px 10px;border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;
+  align-items:center;gap:14px;border-right:4px solid var(--acc);
+  background:linear-gradient(135deg,var(--card),rgba(229,242,238,.25));box-shadow:var(--sh)}
+.ca-past{opacity:.55}
+.ca-di{width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--acc),#5A9B8A);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;color:#fff;line-height:1}
+.ca-di-d{font-size:16px;font-weight:800}
+.ca-di-m{font-size:8px;font-weight:500;opacity:.85}
+.ca-nm{font-size:14px;font-weight:700}
+.ca-mt{font-size:12px;color:var(--txtS)}
+.ca-doc{font-size:11px;color:var(--txtM);margin-top:2px}
+
+.ac{background:var(--card);border-radius:16px;padding:16px 18px;margin:0 16px 10px;
+  box-shadow:var(--sh);cursor:pointer;border:1px solid var(--brd);transition:all .2s}
+.ac-next{border:2px solid var(--acc) !important;box-shadow:var(--shL)}
+.ac-past{opacity:.55}
+.ac-row{display:flex;align-items:center;gap:12px}
+.ac-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:20px;flex-shrink:0}
+.ac-nm{font-size:15px;font-weight:700}
+.ac-badge{font-size:10px;background:var(--acc);color:#fff;border-radius:6px;
+  padding:2px 6px;font-weight:600;margin-right:6px;display:inline-block}
+.ac-det{font-size:12px;color:var(--txtS)}
+.ac-exp{margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)}
+.ac-line{font-size:13px;margin-bottom:6px}
+.ac-line a{color:var(--pri)}
+.waze-btn{display:inline-block;background:#33CCFF;color:#fff;border-radius:8px;padding:6px 14px;
+  font-size:12px;font-weight:600}
+.ac-btns{display:flex;gap:8px;margin-top:12px}
+.ac-btns button{padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600}
+.btn-edit{background:var(--priL) !important;color:var(--pri)}
+.btn-del{background:#FEE !important;color:#C44}
+
+.ct{display:flex;background:var(--card);border-radius:14px;padding:4px;margin:0 16px 20px;box-shadow:var(--sh)}
+.ct button{flex:1;padding:10px 8px;border-radius:10px;font-weight:600;font-size:13px;
+  transition:all .2s;color:var(--txtS);background:transparent !important}
+.ct button.on{background:var(--pri) !important;color:#fff}
+.cb{background:var(--card);border-radius:20px;padding:28px 24px;box-shadow:var(--shL);
+  text-align:center;margin:0 16px}
+.cb label{font-size:13px;color:var(--txtS);display:block;margin-bottom:12px}
+.cb input[type=date]{font-size:18px;padding:12px 20px;border-radius:12px;border:2px solid var(--brd) !important;
+  text-align:center;color:var(--txt);width:100%;direction:ltr;background:var(--card) !important}
+.cr{margin-top:24px}
+.cr-sub{font-size:13px;color:var(--txtS);margin-bottom:8px}
+.wb{background:var(--priL);color:var(--pri);border-radius:20px;font-weight:700;
+  display:inline-block;font-size:28px;padding:6px 18px}
+.cr-big{font-size:28px;font-weight:800;color:var(--pri)}
+.ni{display:flex;gap:12px;justify-content:center;align-items:center}
+.ni-f label{font-size:11px;color:var(--txtM);display:block;margin-bottom:4px}
+.ni-f input{width:80px;padding:12px 8px;border-radius:12px;border:2px solid var(--brd) !important;
+  text-align:center;font-size:24px;font-weight:700;color:var(--txt);background:var(--card) !important}
+.ni-plus{font-size:28px;font-weight:700;color:var(--txtM);padding-top:16px}
+
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;
+  display:flex;align-items:flex-end;justify-content:center}
+.mo-box{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:500px;
+  max-height:85vh;overflow-y:auto;padding:16px 20px 32px;position:relative;
+  -webkit-overflow-scrolling:touch}
+.mo-handle{width:40px;height:4px;border-radius:2px;background:var(--txtM);margin:0 auto 12px}
+.mo-close{position:absolute;top:16px;left:16px;width:36px;height:36px;border-radius:50%;
+  background:var(--brd) !important;color:var(--txtS);font-size:18px;display:flex;
+  align-items:center;justify-content:center;font-weight:700;line-height:1}
+.mo-close:active{background:var(--txtM) !important;color:#fff}
+.mo h2{font-size:18px;font-weight:700;text-align:center;margin-bottom:16px}
+.mo-f{margin-bottom:14px}
+.mo-f label{font-size:12px;font-weight:600;color:var(--txtS);display:block;margin-bottom:4px}
+.mo-f input,.mo-f select{width:100%;padding:10px 14px;border-radius:10px;
+  border:1.5px solid var(--brd) !important;font-size:14px;color:var(--txt);background:var(--card) !important}
+.mo-f input[type=date],.mo-f input[type=time]{direction:ltr;text-align:right}
+.mo-submit{width:100%;padding:14px;border-radius:14px;background:var(--pri) !important;
+  color:#fff;font-size:16px;font-weight:700;margin-top:8px}
+.mo-cancel{width:100%;padding:12px;border-radius:14px;border:1.5px solid var(--brd) !important;
+  background:transparent !important;color:var(--txtS);font-size:14px;font-weight:600;margin-top:8px}
+
+.empty{text-align:center;padding:40px;color:var(--txtM)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fadeIn .25s ease}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+"use strict";
+
+var LMP_US = new Date(2025,11,20);
+var LMP_P = new Date(2025,11,22);
+var DUE_US = new Date(2026,8,26);
+var DUE_P = new Date(2026,8,28);
+var SK = "mital-preg-v4";
+var HM = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+var HD = ["א׳","ב׳","ג׳","ד׳","ה׳","ו׳","ש׳"];
+var MS = [
+  {id:"nt",name:"סקירה מוקדמת",wr:"11-14",desc:"שקיפות עורפית + מערכות מוקדמת"},
+  {id:"protein",name:"בדיקת חלבון עוברי",wr:"14-17",desc:"Triple/Quad test"},
+  {id:"amnio",name:"בדיקת מי שפיר",wr:"16-20",desc:"אמניוצנטזיס (אם נדרש)"},
+  {id:"anatomy",name:"סקירת מערכות",wr:"20-24",desc:"סקירת אנטומיה מפורטת"},
+  {id:"glucose",name:"העמסת סוכר",wr:"24-28",desc:"בדיקת סבילות לגלוקוז"},
+  {id:"gbs",name:"בדיקת סטרפטוקוק",wr:"35-37",desc:"תרבית GBS"},
+  {id:"growth",name:"סקירת גדילה",wr:"34-36",desc:"אולטרסאונד מעקב גדילה"},
+  {id:"monitor",name:"מוניטור",wr:"36-40",desc:"מעקב דופק עוברי"}
+];
+var INIT_APT = {
+  id:"apt-1",title:"סקירה מוקדמת",date:"2026-04-05",time:"17:00",
+  doctor:"ד״ר מוטי ברדיצב",location:"בית חולים אלישע",room:"מרפאות מומחים חדר 503",
+  phone:"0542024727",waze:"https://waze.com/ul/hsvbfs72j3",milestoneId:"nt",notes:""
+};
+
+function dBet(a,b){return Math.floor((b-a)/864e5)}
+function gWD(d,l){var x=dBet(l,d);return x<0?null:{w:Math.floor(x/7),d:x%7,t:x}}
+function wToD(w,d,l){var r=new Date(l);r.setDate(r.getDate()+w*7+d);return r}
+function fD(d){return d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear()}
+function fISO(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function pISO(s){var p=s.split("-");return new Date(+p[0],p[1]-1,+p[2])}
+function isSame(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
+function trimC(w){return w<=13?["var(--t1)","var(--t1b)"]:w<=27?["var(--t2)","var(--t2b)"]:["var(--t3)","var(--t3b)"]}
+function E(s){if(!s)return "";return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
+
+var S = {
+  view:"home",apts:[],usePeriod:false,
+  calM:new Date().getMonth(),calY:new Date().getFullYear(),
+  modal:false,editId:null,expanded:null,
+  calcMode:"dateToWeek",calcDate:fISO(new Date()),calcW:13,calcD:5,
+  form:{}
+};
+
+function load(){
+  try{
+    var d=JSON.parse(localStorage.getItem(SK));
+    if(d && d.apts && d.apts.length){S.apts=d.apts;S.usePeriod=!!d.usePeriod}
+    else{S.apts=[INIT_APT]}
+  }catch(e){S.apts=[INIT_APT]}
+}
+function save(){try{localStorage.setItem(SK,JSON.stringify({apts:S.apts,usePeriod:S.usePeriod}))}catch(e){}}
+
+function getD(){
+  var lmp=S.usePeriod?LMP_P:LMP_US;
+  var due=S.usePeriod?DUE_P:DUE_US;
+  var today=new Date();today.setHours(0,0,0,0);
+  var cwd=gWD(today,lmp);
+  var sorted=S.apts.slice().sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0});
+  var future=sorted.filter(function(a){return pISO(a.date)>=today});
+  var next=future[0]||null;
+  var sched={};
+  S.apts.forEach(function(a){if(a.milestoneId)sched[a.milestoneId]=true});
+  var unsched=MS.filter(function(m){return !sched[m.id]});
+  var daysLeft=dBet(today,due);
+  var prog=cwd?Math.min(cwd.t/280*100,100):0;
+  return {lmp:lmp,due:due,today:today,cwd:cwd,sorted:sorted,next:next,unsched:unsched,daysLeft:daysLeft,prog:prog};
+}
+
+/* Event delegation - no inline handlers */
+document.addEventListener("click",function(ev){
+  var t=ev.target.closest("[data-action]");
+  if(!t)return;
+  var a=t.getAttribute("data-action");
+  var v=t.getAttribute("data-val")||"";
+  ev.stopPropagation();
+  if(a==="tab"){S.view=v;S.expanded=null;render()}
+  else if(a==="fab"){openModal()}
+  else if(a==="switch-method"){S.usePeriod=!S.usePeriod;save();render()}
+  else if(a==="go-view"){S.view=v;S.expanded=null;render()}
+  else if(a==="show-apt"){S.view="appointments";S.expanded=v;render()}
+  else if(a==="toggle-apt"){S.expanded=(S.expanded===v)?null:v;render()}
+  else if(a==="edit-apt"){editApt(v)}
+  else if(a==="del-apt"){delApt(v)}
+  else if(a==="open-modal"){openModal()}
+  else if(a==="close-modal"){closeModal()}
+  else if(a==="submit-form"){submitForm()}
+  else if(a==="prev-month"){prevMonth()}
+  else if(a==="next-month"){nextMonth()}
+  else if(a==="calc-mode"){S.calcMode=v;render()}
+  else if(a==="modal-stop"){/* do nothing, stop propagation */}
+});
+
+document.addEventListener("change",function(ev){
+  var t=ev.target;
+  var f=t.getAttribute("data-field");
+  if(f){S.form[f]=t.value;return}
+  if(t.id==="calc-date-input"){S.calcDate=t.value;render()}
+  if(t.id==="calc-w-input"){S.calcW=parseInt(t.value)||0;render()}
+  if(t.id==="calc-d-input"){S.calcD=Math.min(6,parseInt(t.value)||0);render()}
+});
+
+document.addEventListener("input",function(ev){
+  var t=ev.target;
+  var f=t.getAttribute("data-field");
+  if(f){S.form[f]=t.value}
+});
+
+function render(){
+  var d=getD();
+  var h="";
+  var titles={home:"שלום מיטל 💛",calendar:"לוח שנה",appointments:"התורים שלי",calculator:"מחשבון שבועות"};
+  h+='<div class="hdr"><h1>'+titles[S.view]+'</h1>';
+  if(S.view==="home"&&d.cwd)h+='<div class="hdr-sub">'+fD(d.today)+" \xb7 "+HD[d.today.getDay()]+'</div>';
+  h+='</div><div class="fi">';
+  if(S.view==="home") h+=renderHome(d);
+  else if(S.view==="calendar") h+=renderCal(d);
+  else if(S.view==="appointments") h+=renderApts(d);
+  else h+=renderCalc(d);
+  h+='</div>';
+  h+='<button class="fab" data-action="fab">+</button>';
+  h+=renderTabs();
+  if(S.modal) h+=renderModal(d);
+  document.getElementById("app").innerHTML=h;
+}
+
+function renderTabs(){
+  var tabs=[
+    {k:"home",i:"\ud83c\udfe0",l:"\u05d1\u05d9\u05ea"},
+    {k:"calendar",i:"\ud83d\udcc6",l:"\u05dc\u05d5\u05d7 \u05e9\u05e0\u05d4"},
+    {k:"appointments",i:"\ud83d\udccb",l:"\u05ea\u05d5\u05e8\u05d9\u05dd"},
+    {k:"calculator",i:"\ud83d\udd22",l:"\u05de\u05d7\u05e9\u05d1\u05d5\u05df"}
+  ];
+  var h='<div class="tabs">';
+  for(var i=0;i<tabs.length;i++){
+    var t=tabs[i];
+    h+='<button class="tab'+(S.view===t.k?" on":"")+'" data-action="tab" data-val="'+t.k+'">';
+    h+='<span class="tab-ico">'+t.i+'</span><span class="tab-lbl">'+t.l+'</span></button>';
+  }
+  return h+'</div>';
+}
+
+function renderHome(d){
+  var h="";
+  h+='<div class="hero"><div class="hero-c1"></div><div class="hero-c2"></div><div class="hero-in">';
+  h+='<div class="hero-method">'+(S.usePeriod?"לפי מחזור":"לפי אולטרסאונד");
+  h+=' <span class="hero-switch" data-action="switch-method">שנה</span></div>';
+  h+='<div class="hero-week">שבוע '+(d.cwd?d.cwd.w:"?")+"+"+(d.cwd?d.cwd.d:"?")+'</div>';
+  h+='<div class="hero-due">תאריך לידה משוער: '+fD(d.due)+" \xb7 עוד "+d.daysLeft+" ימים</div>";
+  h+='<div class="pbar"><div class="pbar-f" style="width:'+d.prog+'%"></div></div>';
+  h+='<div class="pbar-l"><span>שבוע 0</span><span>שבוע 40</span></div>';
+  h+='</div></div>';
+
+  if(d.next){
+    var nd=pISO(d.next.date);var dd=dBet(d.today,nd);
+    var when=dd===0?" \xb7 היום! \ud83c\udfaf":dd===1?" \xb7 מחר":dd>0?" \xb7 בעוד "+dd+" ימים":"";
+    h+='<div class="nxt" data-action="show-apt" data-val="'+d.next.id+'">';
+    h+='<div class="nxt-dot">\ud83d\udcc5</div><div style="flex:1;min-width:0">';
+    h+='<div class="nxt-lbl">התור הקרוב</div>';
+    h+='<div class="nxt-title">'+E(d.next.title)+'</div>';
+    h+='<div class="nxt-meta">'+fD(nd)+" \xb7 "+d.next.time+when+'</div>';
+    h+='</div><span style="font-size:18px;color:var(--txtM)">\u2039</span></div>';
+  }
+
+  if(d.unsched.length){
+    h+='<div class="crd"><h3>\u23f3 טרם נקבע</h3>';
+    for(var i=0;i<d.unsched.length;i++){
+      var m=d.unsched[i];
+      var sw=parseInt(m.wr);var past=d.cwd&&d.cwd.w>sw+4;
+      h+='<div class="ms-row" style="opacity:'+(past?.5:1)+'" data-action="open-modal">';
+      h+='<div class="ms-dot" style="background:'+(past?"var(--txtM)":"var(--pri)")+'"></div>';
+      h+='<div style="flex:1"><div class="ms-name">'+E(m.name)+'</div>';
+      h+='<div class="ms-desc">שבועות '+m.wr+" \xb7 "+E(m.desc)+'</div></div>';
+      h+='<span class="ms-add">+</span></div>';
+    }
+    h+='</div>';
+  }
+
+  h+='<div class="qk">';
+  h+='<button class="qk-btn" data-action="go-view" data-val="calendar"><div class="qk-ico">\ud83d\udcc6</div><div class="qk-lbl">לוח שנה</div></button>';
+  h+='<button class="qk-btn" data-action="go-view" data-val="calculator"><div class="qk-ico">\ud83d\udd22</div><div class="qk-lbl">מחשבון שבועות</div></button>';
+  h+='</div>';
+  return h;
+}
+
+function renderCal(d){
+  var cm=S.calM,cy=S.calY;
+  var h='<div class="cal-nav">';
+  h+='<button class="cal-nav-btn" data-action="prev-month">\u203a</button>';
+  h+='<span class="cal-nav-title">'+HM[cm]+" "+cy+'</span>';
+  h+='<button class="cal-nav-btn" data-action="next-month">\u2039</button>';
+  h+='</div>';
+  h+='<div class="cal-hdr">';
+  for(var j=0;j<HD.length;j++) h+='<span>'+HD[j]+'</span>';
+  h+='</div>';
+
+  var first=new Date(cy,cm,1);var last=new Date(cy,cm+1,0).getDate();var dow=first.getDay();
+  var aptMap={};
+  for(var k=0;k<S.apts.length;k++) aptMap[S.apts[k].date]=S.apts[k];
+
+  h+='<div class="cal-grid">';
+  var i;
+  for(i=0;i<dow;i++) h+='<div></div>';
+  for(i=1;i<=last;i++){
+    var cd=new Date(cy,cm,i);var iso=fISO(cd);var isT=isSame(cd,d.today);var apt=aptMap[iso];
+    var wd=gWD(cd,d.lmp);var inP=wd&&wd.w>=0&&wd.w<=42;var isNW=wd&&wd.d===0&&wd.w>0&&wd.w<=42;
+    var tc=wd?trimC(wd.w):["",""];
+    var cls="cc";if(isT)cls+=" cc-today";if(apt)cls+=" cc-apt";
+    var act=apt?' data-action="show-apt" data-val="'+apt.id+'"':'';
+    h+='<div class="'+cls+'"'+act+'>';
+    h+='<div class="cc-day">'+i+'</div>';
+    if(inP){
+      if(isNW){
+        h+='<span class="cc-wd cc-wd-hi" style="background:'+tc[1]+';color:'+tc[0]+'">'+wd.w+'+'+wd.d+'</span>';
+      }else{
+        h+='<span class="cc-wd">'+wd.w+'+'+wd.d+'</span>';
+      }
+    }
+    if(apt){
+      var sh=apt.title.length>6?apt.title.substring(0,5)+"\u2026":apt.title;
+      h+='<div class="cc-al">'+E(sh)+'</div>';
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+
+  h+='<div class="tri-leg">';
+  var legs=[{n:"טרימסטר 1",c:"var(--t1)",b:"var(--t1b)"},{n:"טרימסטר 2",c:"var(--t2)",b:"var(--t2b)"},{n:"טרימסטר 3",c:"var(--t3)",b:"var(--t3b)"}];
+  for(var li=0;li<legs.length;li++){
+    var lg=legs[li];
+    h+='<div class="tri-item"><div class="tri-sw" style="background:'+lg.b+';border:1.5px solid '+lg.c+'"></div><span class="tri-nm" style="color:'+lg.c+'">'+lg.n+'</span></div>';
+  }
+  h+='</div>';
+
+  var monthApts=d.sorted.filter(function(a){var dd=pISO(a.date);return dd.getMonth()===cm&&dd.getFullYear()===cy});
+  for(var mi=0;mi<monthApts.length;mi++){
+    var a=monthApts[mi];
+    var dd2=pISO(a.date);var wd2=gWD(dd2,d.lmp);var dt2=dBet(d.today,dd2);var past2=dd2<d.today;
+    h+='<div class="ca'+(past2?" ca-past":"")+'" data-action="show-apt" data-val="'+a.id+'">';
+    h+='<div class="ca-di"><span class="ca-di-d">'+dd2.getDate()+'</span><span class="ca-di-m">'+HM[dd2.getMonth()].substring(0,3)+'</span></div>';
+    h+='<div style="flex:1;min-width:0"><div class="ca-nm">'+E(a.title)+'</div>';
+    h+='<div class="ca-mt">'+(a.time?a.time+" \xb7 ":"")+(wd2?"שבוע "+wd2.w+"+"+wd2.d:"");
+    if(!past2&&dt2>=0) h+=dt2===0?" \xb7 היום!":dt2===1?" \xb7 מחר":" \xb7 בעוד "+dt2+" ימים";
+    h+='</div>';
+    if(a.doctor) h+='<div class="ca-doc">'+E(a.doctor)+(a.location?" \xb7 "+E(a.location):"")+'</div>';
+    h+='</div><span style="font-size:14px;color:var(--txtM)">\u2039</span></div>';
+  }
+  return h;
+}
+
+function renderApts(d){
+  var h='<div style="padding:0 0 20px">';
+  if(!d.sorted.length) h+='<div class="empty">אין תורים. לחצי על + להוספה</div>';
+  for(var i=0;i<d.sorted.length;i++){
+    var a=d.sorted[i];
+    var dd=pISO(a.date);var wd=gWD(dd,d.lmp);var past=dd<d.today;
+    var isN=d.next&&d.next.id===a.id;var isX=S.expanded===a.id;var dt=dBet(d.today,dd);
+    h+='<div class="ac'+(isN?" ac-next":"")+(past?" ac-past":"")+'" data-action="toggle-apt" data-val="'+a.id+'">';
+    h+='<div class="ac-row">';
+    h+='<div class="ac-icon" style="background:'+(isN?"var(--accL)":"var(--priL)")+'">'+(past?"\u2713":isN?"\ud83d\udcc5":"\ud83d\udd35")+'</div>';
+    h+='<div style="flex:1;min-width:0"><div class="ac-nm">'+(isN?'<span class="ac-badge">הבא</span>':"")+E(a.title)+'</div>';
+    h+='<div class="ac-det">'+fD(dd)+" \xb7 "+(a.time||"")+(wd?" \xb7 שבוע "+wd.w+"+"+wd.d:"");
+    if(!past&&dt>=0) h+=dt===0?" \xb7 היום!":dt===1?" \xb7 מחר":" \xb7 בעוד "+dt+" ימים";
+    h+='</div></div>';
+    h+='<span style="font-size:16px;color:var(--txtM);display:inline-block;transition:transform .2s;transform:rotate('+(isX?90:0)+'deg)">\u2039</span>';
+    h+='</div>';
+    if(isX){
+      h+='<div class="ac-exp">';
+      if(a.doctor) h+='<div class="ac-line">\ud83d\udc68\u200d\u2695\ufe0f '+E(a.doctor)+'</div>';
+      if(a.location) h+='<div class="ac-line">\ud83d\udccd '+E(a.location)+(a.room?" \xb7 "+E(a.room):"")+'</div>';
+      if(a.phone) h+='<div class="ac-line">\ud83d\udcde <a href="tel:'+E(a.phone)+'">'+E(a.phone)+'</a></div>';
+      if(a.waze) h+='<div class="ac-line"><a href="'+E(a.waze)+'" target="_blank" rel="noopener" class="waze-btn">\ud83e\udded נווט בוויז</a></div>';
+      if(a.notes) h+='<div class="ac-line" style="font-size:12px;color:var(--txtS)">'+E(a.notes)+'</div>';
+      h+='<div class="ac-btns">';
+      h+='<button class="btn-edit" data-action="edit-apt" data-val="'+a.id+'">\u270f\ufe0f עריכה</button>';
+      h+='<button class="btn-del" data-action="del-apt" data-val="'+a.id+'">\ud83d\uddd1\ufe0f מחיקה</button>';
+      h+='</div></div>';
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+function renderCalc(d){
+  var h='<div class="ct">';
+  h+='<button class="'+(S.calcMode==="dateToWeek"?"on":"")+'" data-action="calc-mode" data-val="dateToWeek">תאריך \u2192 שבוע</button>';
+  h+='<button class="'+(S.calcMode==="weekToDate"?"on":"")+'" data-action="calc-mode" data-val="weekToDate">שבוע \u2192 תאריך</button>';
+  h+='</div><div class="cb">';
+  if(S.calcMode==="dateToWeek"){
+    h+='<label>בחרי תאריך</label>';
+    h+='<input type="date" id="calc-date-input" value="'+S.calcDate+'">';
+    var r=gWD(pISO(S.calcDate),d.lmp);
+    if(r&&r.w>=0){
+      h+='<div class="cr"><div class="cr-sub">בתאריך '+fD(pISO(S.calcDate))+' תהיי בשבוע</div>';
+      h+='<span class="wb">'+r.w+"+"+r.d+'</span></div>';
+    }else if(r&&r.w<0){
+      h+='<div style="margin-top:16px;font-size:13px;color:var(--txtM)">תאריך לפני תחילת ההריון</div>';
+    }
+  }else{
+    h+='<label>הזיני שבוע + ימים</label>';
+    h+='<div class="ni"><div class="ni-f"><label>שבוע</label><input type="number" id="calc-w-input" min="0" max="42" value="'+S.calcW+'"></div>';
+    h+='<span class="ni-plus">+</span>';
+    h+='<div class="ni-f"><label>ימים</label><input type="number" id="calc-d-input" min="0" max="6" value="'+S.calcD+'"></div></div>';
+    var rd=wToD(S.calcW,S.calcD,d.lmp);
+    h+='<div class="cr"><div class="cr-sub">שבוע '+S.calcW+"+"+S.calcD+' יחול בתאריך</div>';
+    h+='<div class="cr-big">'+fD(rd)+'</div></div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+function renderModal(){
+  var f=S.form;
+  var h='<div class="mo" data-action="close-modal">';
+  h+='<div class="mo-box" data-action="modal-stop">';
+  h+='<div class="mo-handle"></div>';
+  h+='<button class="mo-close" data-action="close-modal">\u2715</button>';
+  h+='<h2>'+(S.editId?"עריכת תור":"הוספת תור חדש")+'</h2>';
+  var fields=[
+    {k:"title",l:"שם הבדיקה / תור *",t:"text",p:"לדוגמא: סקירת מערכות"},
+    {k:"date",l:"תאריך *",t:"date",p:""},
+    {k:"time",l:"שעה",t:"time",p:""},
+    {k:"doctor",l:"רופא/ה",t:"text",p:"שם הרופא/ה"},
+    {k:"location",l:"מיקום",t:"text",p:"בית חולים / מרפאה"},
+    {k:"room",l:"חדר / קומה",t:"text",p:""},
+    {k:"phone",l:"טלפון",t:"tel",p:"מספר טלפון"},
+    {k:"waze",l:"קישור Waze",t:"url",p:"https://waze.com/..."},
+    {k:"notes",l:"הערות",t:"text",p:"הערות נוספות"}
+  ];
+  for(var i=0;i<fields.length;i++){
+    var fi=fields[i];
+    h+='<div class="mo-f"><label>'+fi.l+'</label>';
+    h+='<input type="'+fi.t+'" data-field="'+fi.k+'" value="'+E(f[fi.k]||"")+'" placeholder="'+fi.p+'">';
+    h+='</div>';
+  }
+  h+='<div class="mo-f"><label>קשר לאבן דרך</label>';
+  h+='<select data-field="milestoneId"><option value="">-- ללא --</option>';
+  for(var j=0;j<MS.length;j++){
+    var m=MS[j];
+    h+='<option value="'+m.id+'"'+(f.milestoneId===m.id?" selected":"")+'>'+E(m.name)+" (שבועות "+m.wr+")</option>";
+  }
+  h+='</select></div>';
+  h+='<button class="mo-submit" data-action="submit-form">'+(S.editId?"שמירת שינויים":"הוספת תור")+" \u2713</button>";
+  h+='<button class="mo-cancel" data-action="close-modal">ביטול</button>';
+  h+='</div></div>';
+  return h;
+}
+
+function emptyForm(){return {title:"",date:"",time:"",doctor:"",location:"",room:"",phone:"",waze:"",milestoneId:"",notes:""}}
+function openModal(apt){
+  if(apt){
+    S.editId=apt.id;
+    S.form={title:apt.title||"",date:apt.date||"",time:apt.time||"",doctor:apt.doctor||"",
+      location:apt.location||"",room:apt.room||"",phone:apt.phone||"",waze:apt.waze||"",
+      milestoneId:apt.milestoneId||"",notes:apt.notes||""};
+  }else{S.editId=null;S.form=emptyForm()}
+  S.modal=true;render();
+}
+function closeModal(){S.modal=false;S.editId=null;render()}
+function submitForm(){
+  var f=S.form;
+  if(!f.title||!f.date){alert("נא למלא שם ותאריך");return}
+  if(S.editId){
+    for(var i=0;i<S.apts.length;i++){
+      if(S.apts[i].id===S.editId){
+        S.apts[i]=Object.assign({},S.apts[i],f);break;
+      }
+    }
+  }else{
+    S.apts.push(Object.assign({},f,{id:"apt-"+Date.now()}));
+  }
+  save();closeModal();
+}
+function editApt(id){
+  for(var i=0;i<S.apts.length;i++){
+    if(S.apts[i].id===id){openModal(S.apts[i]);return}
+  }
+}
+function delApt(id){
+  if(confirm("למחוק תור זה?")){
+    S.apts=S.apts.filter(function(a){return a.id!==id});
+    S.expanded=null;save();render();
+  }
+}
+function prevMonth(){S.calM--;if(S.calM<0){S.calM=11;S.calY--}render()}
+function nextMonth(){S.calM++;if(S.calM>11){S.calM=0;S.calY++}render()}
+
+load();
+render();
+})();
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(function(){});
+}
+</script>
+</body>
+</html>
